@@ -4,7 +4,9 @@ $zahl2 = $_POST["z2"];
 $zahl3 = $_POST["z3"];
 $rechenZeichen = $_POST["rZeichen"];
 $rechenZeichen2 = $_POST["rZeichen2"];
-$username = $_POST["userName"];
+session_start();
+$username = $_SESSION['username'];
+
 
 
 echo "= ";
