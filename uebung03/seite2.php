@@ -1,47 +1,99 @@
-<html>
-<head>
-    <meta charset=""UTF-8>
-    <title>"Bachelor Projekt: Taschenrechner"</title>
-</head>
-
-<body>
-<h4>Basic Rechen Operationen</h4>
-
-<form action="seite3.php" method="post">
-    <input type="text" name="userName" placeholder="Username">
-    <br>
-    <br>
-    <input type="text" name="z1" placeholder="Zahl 1">
-    <input type="text" name="z2" placeholder="Zahl 2">
-    <select name="rZeichen">
-        <option>plus</option>
-        <option>minus</option>
-        <option>mal</option>
-        <option>geteilt</option>
-        <option>wurzel</option>
-    </select>
-
-    <br>
-    <button type="submit" name="submit" value="submit">Berechne</button>
-    <br>
-    <h4>Erweiterte Rechen Operationen</h4>
-    <input type="text" name="z3" placeholder="Zahl">
-    <select name="rZeichen2">
-        <option>wurzel</option>
-    </select>
-
-    <br>
-    <button type="submit" name="submit" value="submit">Berechne</button>
-
-</form>
-
-
 <?php
+/**
+ * Created by PhpStorm.
+ * User: cengiz
+ * Date: 23.11.18
+ * Time: 00:09
+ */
+
+include("config.php");
+
+//Variablen deklarieren und mit leeren Werten initalisieren
+
+$username = "";
+$password = "";
+$passwordConfirm = "";
+$usernameError = "";
+$passwordError ="";
+$passwordConfirmError ="";
+
+//USERNAMEN Prüfen
+//Diese IF Abfrage weil ich sonst Fehler bekommen, da beim ersten Aufruf noch kein post geschehen ist
+if($_SERVER["REQUEST_METHOD"] == "POST"){
 
 
+
+    /*Das empty prüft ob die Variable leer ist
+    **Das trim entfernt die Leerzeichen
+     mit $_POST["username"] hole ich mir das password aus meiner HTML Form
+    Insgesamt wird hier geschaut ob das passwort leer ist
+    */
+    if(empty(trim($_POST["username"]))) {
+        $usernameError =  "Bitte geben Sie einen Benutzernamen ein";
+    }else {
+        $username = trim($_POST["username"]);
+    }
+}
+
+//Passwort prüfen
+
+if(empty(trim($_POST["password"]))) {
+    $passwordError = "Bitte geben Sie ein Passwort ein";
+} elseif (strlen(trim($_POST["password"])) < 6) {
+    $passwordError = "Password muss mindestens 6 Zeichen lang sein";
+} else {
+    $password = trim($_POST["password"]);
+}
+
+//Passwort bestätigung prüfen
+
+if(empty(trim($_POST["passwordConfirm"]))) {
+    $passwordError = "Bitte bestätigen Sie ihr Passwort.";
+} else {
+    $passwordConfirm = trim($_POST["passwordConfirm"]);
+    if($password != $passwordConfirm) {
+        $passwordConfirmError = "Passwörter stimmen nicht überein";
+    }
+}
+
+//Überprüfen auf Eingabefehler
+if(empty($usernameError) && empty($passwordError) && empty($passwordConfirmError)) {
+
+    //SQL Statement Variable übergeben
+    $sqlStatement = "INSERT INTO users (username, password) 
+                     VALUES ($username, $password)";
+
+    //SQL Insert durchführen mit mysqli query
+
+    if(mysqli_query($connection, $sqlStatement)) {
+        echo "Registrierung erfolgreich";
+    } else {
+        echo "Error:" .$sqlStatement . "<br>" . mysqli_error($connection);
+    }
+}
+//Close connection
+mysqli_close($connection);
 ?>
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Registrieren </title>
+</head>
+<body>
 
-<h1></h1>
+<div>
+    <h2>Registrieren</h2>
+    <p>Bitte erstelle eine Account</p>
+    <form action="register.php" method="post">
+        <input type="text" name="username" placeholder="Benutzername">
+        <input type="text" name="password" placeholder="Passwort">
+        <input type="text" name="passwordConfirm" placeholder="Passwort bestätigen">
+        <br>
+        <button type="submit" name="submit" value="submit">Registrieren</button>
+        <br>
+    </form>
+</div>
 </body>
 </html>
