@@ -27,7 +27,7 @@ $wochentage = array("so" =>"Sonntag", "mo" => "Montag", "di" => "Dienstag");
 echo $wochentage["mo"];
 */
 
-//testhihi
+//testhihiasdas
 //hihihihi
 
 ?>
