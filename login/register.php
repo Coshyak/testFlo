@@ -31,7 +31,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     if(empty(trim($_POST["username"]))) {
         $usernameError =  "Bitte geben Sie einen Benutzernamen ein";
 
-    }else {
+    } elseif(!(ctype_alpha($_POST["username"]))) { //ctype_alpha prüft ob nur buchstaben vorhanden sind
+        $usernameError = "Bitte verwende nur Buchstaben für deinen Benutzername";
+    } elseif (strlen(trim($_POST["username"])) < 6) {
+        $usernameError = "Der Benutzername muss 6 Buchstaben oder mehr enthalten";
+    } elseif (strlen(trim($_POST["username"]))  > 14) {
+        $usernameError = "Der Benutzername muss 14 Buchstaben oder weniger enthalten";
+    }
+    else {
         $username = trim($_POST["username"]);
     }
 }
@@ -42,7 +49,13 @@ if(empty(trim($_POST["password"]))) {
     $passwordError = "Bitte geben Sie ein Passwort ein";
 
 } elseif (strlen(trim($_POST["password"])) < 6) {
-    $passwordError = "Password muss mindestens 6 Zeichen lang sein";
+    $passwordError = "Passwort muss mindestens 6 Zeichen lang sein";
+
+} elseif (strlen(trim($_POST["password"])) > 30) {
+    $passwordError = "Passwort darf nicht mehr als 30 Zeichen haben";
+
+}  elseif(!(ctype_alnum(trim($_POST["password"])))) {  //ctype_alum checkt ob das password nur aus alphanumerischen zeichen besteht
+    $passwordError = "Passwort darf nur aus Buchstaben und Zahlen bestehen";
 
 } else {
     $password = trim($_POST["password"]);
@@ -64,9 +77,13 @@ if(empty(trim($_POST["passwordConfirm"]))) {
 //Überprüfen auf Eingabefehler
 if(empty($usernameError) && empty($passwordError) && empty($passwordConfirmError)) {
 
+
+    //Passwort verschlüsseln mit dem PASSWORD_DEFAULT algorithmus welches bcrypt ist und für
+    //Blowfish Algorithmus steht
+    $hash = password_hash($password, PASSWORD_DEFAULT);
     //SQL Statement Variable übergeben
     $sqlStatement = "INSERT INTO users (username, password) 
-                     VALUES ('$username', '$password')";
+                     VALUES ('$username', '$hash')";
 
     //SQL Insert durchführen mit mysqli query
 
@@ -76,69 +93,51 @@ if(empty($usernameError) && empty($passwordError) && empty($passwordConfirmError
         echo "Error:" .$sqlStatement . "<br>" . mysqli_error($connection);
     }
 }
-//Close connection
-mysqli_close($connection);
+
 ?>
 
 
-<div>
-    <h2>Registrieren</h2>
-    <p>Bitte erstelle eine Account</p>
-    <form action="register.php" method="post">
-        <?php echo $usernameError; ?>
-        <?php echo $passwordError; ?>
-        <?php echo $passwordConfirmError; ?>
-        <input type="text" name="username" placeholder="Benutzername">
-        <input type="text" name="password" placeholder="Passwort">
-        <input type="password" name="passwordConfirm" placeholder="Passwort bestätigen">
-        <br>
-        <button type="submit" name="submit" value="submit">Registrieren</button>
-        <br>
-    </form>
-</div>
 
 
 
-
-
-</body>
-</html>
-
-
-<meta charset="UTF-8">
-<title>Sign Up</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
-<style type="text/css">
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Registrieren</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+    <style type="text/css">
     body{ font: 14px sans-serif; }
     .wrapper{ width: 350px; padding: 20px; }
-</style>
+    </style>
+
 </head>
+
 <body>
 <div class="wrapper">
     <div class="wrapper">
         <h2>Registrieren</h2>
         <p>Bitte erstelle eine Account</p>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-            <div class="form-group <?php echo (!empty($usernameError)) ? 'has-error' : ''; ?>">
-                <label>Username</label>
+        <form action="register.php" method="post">
+            <div>
+                <label>Benutzername</label>
                 <input type="text" name="username" class="form-control" value="<?php echo $username; ?>">
                 <span class="help-block"><?php echo $usernameError; ?></span>
             </div>
-            <div class="form-group <?php echo (!empty($passwordError)) ? 'has-error' : ''; ?>">
-                <label>Password</label>
+            <div>
+                <label>Passwort</label>
                 <input type="password" name="password" class="form-control" value="<?php echo $password; ?>">
                 <span class="help-block"><?php echo $passwordError; ?></span>
             </div>
-            <div class="form-group <?php echo (!empty($passwordConfirmError)) ? 'has-error' : ''; ?>">
-                <label>Confirm Password</label>
+            <div>
+                <label>Passwort bestätigen</label>
                 <input type="password" name="passwordConfirm" class="form-control" value="<?php echo $passwordConfirm; ?>">
                 <span class="help-block"><?php echo $passwordConfirmError; ?></span>
             </div>
             <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Submit">
-                <input type="reset" class="btn btn-default" value="Reset">
+                <input type="submit" class="btn btn-primary" value="Registrieren">
             </div>
-            <p>Already have an account? <a href="login.php">Login here</a>.</p>
+            <p>Sie haben bereits einen Account? <a href="login.php">Login hier</a>.</p>
         </form>
     </div>
 
